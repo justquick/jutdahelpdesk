@@ -1,0 +1,60 @@
+{% extends "helpdesk/base.html" %}{% load i18n %}
+{% block helpdesk_title %}{% trans "Helpdesk Dashboard" %}{% endblock %}
+{% block helpdesk_head %}
+<script type='text/javascript' language='javascript' src='{{ MEDIA_URL }}helpdesk/hover.js'></script>
+{% endblock %}
+{% block helpdesk_body %}
+
+<table width='40%' align='left'>
+<tr class='row_tablehead'><td colspan='4'>{% trans "Helpdesk Summary" %}</td></tr>
+<tr class='row_columnheads'><th>{% trans "Queue" %}</th><th>{% trans "Open" %}</th><th>{% trans "Resolved" %}</th></tr>
+{% for queue in dash_tickets %}
+<tr class='row_{% cycle odd,even %} row_hover '>
+<th><a href='{% url helpdesk_list %}?queue={{ queue.queue }}&status=1&status=2'>{{ queue.name }}</a></th>
+<td>{% if queue.open %}<a href='{% url helpdesk_list %}?queue={{ queue.queue }}&status=1&status=2'>{% endif %}{{ queue.open }}{% if queue.open %}</a>{% endif %}</td>
+<td>{% if queue.resolved %}<a href='{% url helpdesk_list %}?queue={{ queue.queue }}&status=3'>{% endif %}{{ queue.resolved }}{% if queue.resolved %}</a>{% endif %}</td>
+</tr>
+{% endfor %}
+</table>
+
+<p style='margin-left: 42%;'>Welcome to your Helpdesk Dashboard! From here you can quickly see your own tickets, and those tickets that have no owner. Why not pick up an orphan ticket and sort it out for a customer?</p>
+
+<br style='clear: both;' />
+
+<table width='100%'>
+<tr class='row_tablehead'><td colspan='6'>{% trans "Your Tickets" %}</td></tr>
+<tr class='row_columnheads'><th>#</th><th>{% trans "Pr" %}</th><th>{% trans "Title" %}</th><th>{% trans "Queue" %}</th><th>{% trans "Status" %}</th><th>{% trans "Last Update" %}</th></tr>
+{% for ticket in user_tickets %}
+<tr class='row_{% cycle odd,even %} row_hover'>
+<th><a href='{{ ticket.get_absolute_url }}'>{{ ticket.ticket }}</a></th>
+<td>{{ ticket.get_priority_span }}</td>
+<th><a href='{{ ticket.get_absolute_url }}'>{{ ticket.title }}</a></th>
+<td>{{ ticket.queue }}</td>
+<td>{{ ticket.get_status }}</td>
+<td><span title='{{ ticket.modified|date:"r" }}'>{{ ticket.modified|timesince }}</span></td>
+</tr>
+{% endfor %}
+{% if not user_tickets %}
+<tr class='row_odd'><td colspan='5'>{% trans "You have no tickets assigned to you." %}</td></tr>
+{% endif %}
+</table>
+
+<table width='100%'>
+<tr class='row_tablehead'><td colspan='6'>{% trans "Unassigned Tickets" %}</td></tr>
+<tr class='row_columnheads'><th>#</th><th>{% trans "Pr" %}</th><th>{% trans "Title" %}</th><th>{% trans "Queue" %}</th><th>{% trans "Created" %}</th><th>&nbsp;</th></tr>
+{% for ticket in unassigned_tickets %}
+<tr class='row_{% cycle odd,even %} row_hover'>
+<th><a href='{{ ticket.get_absolute_url }}'>{{ ticket.ticket }}</a></th>
+<td>{{ ticket.get_priority_span }}</td>
+<th><a href='{{ ticket.get_absolute_url }}'>{{ ticket.title }}</a></th>
+<td><b><a href='{% url helpdesk_list %}?queue={{ ticket.queue.pk }}&status=1&status=2'>{{ ticket.queue }}</a></b></td>
+<td><span title='{{ ticket.created|date:"r" }}'>{{ ticket.created|timesince }} ago</span></td>
+<th><a href='{{ ticket.get_absolute_url }}?take'><span class='button button_take'>{% trans "Take" %}</span></a> | <a href='{% url helpdesk_delete ticket.id %}'><span class='button button_delete'>{% trans "Delete" %}</span></a></th>
+</tr>
+{% endfor %}
+{% if not unassigned_tickets %}
+<tr class='row_odd'><td colspan='6'>{% trans "There are no unassigned tickets." %}</td></tr>
+{% endif %}
+</table>
+
+{% endblock %}

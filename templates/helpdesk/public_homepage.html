@@ -1,0 +1,45 @@
+{% extends "helpdesk/public_base.html" %}{% load i18n %}
+
+{% block helpdesk_body %}
+<h2>{% trans "View a Ticket" %}</h2>
+
+<form method='get' action='{% url helpdesk_public_view %}'>
+<fieldset>
+    <dl>
+        <dt><label for='id_ticket'>{% trans "Ticket" %}</label></dt>
+        <dd><input type='text' name='ticket' /></dd>
+
+        <dt><label for='id_email'>{% trans "Your E-mail Address" %}</label></dt>
+        <dd><input type='text' name='email' /></dd>
+    </dl>
+
+    <input type='submit' value='{% trans "View Ticket" %}' />
+</fieldset>
+</form>
+
+<h2 name='submit'>{% trans "Submit a Ticket" %}</h2>
+
+<p>{% trans "All fields are required. Please provide as descriptive a title and description as possible." %}</p>
+
+<form method='post' action='./#submit' enctype='multipart/form-data'>
+<fieldset>
+    <dl>
+        {% for field in form %}
+            {% if field.is_hidden %}
+                {{ field }}
+            {% else %}
+                <dt><label for='id_{{ field.name }}'>{{ field.label }}</label>{% if not field.field.required %} <span class='form_optional'>{% trans "(Optional)" %}</span>{% endif %}</dt>
+                <dd>{{ field }}</dd>
+                {% if field.errors %}<dd class='error'>{{ field.errors }}</dd>{% endif %}
+                {% if field.help_text %}<dd class='form_help_text'>{{ field.help_text }}</dd>{% endif %}</label>
+            {% endif %}
+        {% endfor %}
+    </dl>
+    
+    <div class='buttons'>
+        <input type='submit' value='{% trans "Submit Ticket" %}' />
+    </div>
+</fieldset>
+
+</form>
+{% endblock %}
